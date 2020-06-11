@@ -3,20 +3,22 @@ import { countState } from '../../recoil/atoms'
 import { useRecoilValue } from 'recoil';
 
 function AnimationContainer({ cr }) {
+
     const count = useRecoilValue(countState);
+    const [loadCount, setLoadCount] = useState(0)
+    const [internalCount, setInternalCount] = useState(1)
+
     const [switching, setSwitching] = useState(false)
     const [playbackDirection, setPlaybackDirection] = useState('forward')
     const [flipHorizontal, setFlipHorizontal] = useState(1)
+    const [nextAnimation, setNextAnimation] = useState()
+
     const [animation, setAnimation] = useState()
     const [creature, setCreature] = useState()
-    const [internalCount, setInternalCount] = useState(1)
-    const [nextAnimation, setNextAnimation] = useState()
-    const [loadCount, setLoadCount] = useState(0)
+  
+    
 
-
-
-
-    const clickHandler = (event) => {
+    const clickHandler = () => {
 
         if (!animation.transition) {
             setSwitching(!switching)
@@ -37,7 +39,8 @@ function AnimationContainer({ cr }) {
                     return;
                 case 'lookSideIdle': setAnimation(creature.lookSide);
                     setInternalCount(creature.lookSide.length);
-                    setPlaybackDirection('backward'); setNextAnimation(creature.idle);
+                    setPlaybackDirection('backward');
+                    setNextAnimation(creature.idle);
                     return;
             }
         }
@@ -92,7 +95,7 @@ function AnimationContainer({ cr }) {
                             style={{
                                 position: 'absolute', transform: `scaleX(${flipHorizontal})`,
                                 opacity: internalCount === x && animationObject.name === animation.name ? 1 : 0,
-                                height: 300,
+                                height: 400,
                                 width: 'auto'
                             }}
                             src={`${creature.path}${animationObject.name}/${animationObject.name}-${x}.png`} />
@@ -101,7 +104,6 @@ function AnimationContainer({ cr }) {
                 {internalCount}
                 {animation.name}
             </div>}
-
             {creature && loadCount !== creature.totalImageCount && <div style={{ opacity: .99, backgroundColor: 'lightyellow', height: 500, width: 500, marginTop: -500 }}>LOADING</div>}
         </>
     );
