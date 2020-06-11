@@ -12,22 +12,28 @@ function Loader() {
 
     const [fetched, setFetchComplete] = useRecoilState(fetchComplete)
     const [images, setImages] = useRecoilState(allImages)
+
+    const [show, setShow] = useState(false)
+    const [data, setData] = useState()
     // const [{ loading }, loadingDispatch] = useStateValue();
 
     useEffect(() => {
         const fetchData = async (setImages) => {
+            let d;
 
 
-            console.log('before')
-            const data = await imageLoader();
+            d = await imageLoader();
+            setData(d)
+            setFetchComplete(true)
+      
+
+            setShow(true)
 
 
-            show = true
+
+            data && setImages(data.allImages)
 
 
-            setImages(data.allImages)
-
-            console.log(data.allImages)
             // setFetchComplete(true)
 
 
@@ -37,12 +43,11 @@ function Loader() {
         !images && fetchData(setImages)
 
 
-    }, [images])
+    }, [data])
     return <div>{show && Object.keys(images).map((item, index) => {
 
         return images[item].map((i, sindex) => {
-            cou++;
-            cou === 30 && setFetchComplete(true)
+
             return <div style={{ display: 'none' }}>ddd<img src={process.env.PUBLIC_URL + `/images/${item}/${i}`} /></div>
         })
     })}</div>

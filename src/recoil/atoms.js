@@ -17,7 +17,7 @@ export const loopLength = atom({
 
 export const animationSpeed = atom({
   key:"animationSpeed",
-  default:32
+  default:12
 })
 
 export const switchAnimation = atom({

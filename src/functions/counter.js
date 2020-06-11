@@ -7,7 +7,7 @@ import {
 
 const Counter = () => {
     const setCount = useSetRecoilState(countState);
-    const length = useRecoilValue(loopLength)
+
     const speed = useRecoilValue(animationSpeed)
     const requestRef = useRef();
     const previousTimeRef = useRef();
