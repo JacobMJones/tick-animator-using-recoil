@@ -66,10 +66,10 @@ export const creatures = {
     },
     walk:{
         clickable:false,
-        totalImageCount:11 ,
+        totalImageCount:12 ,
         random:false,
         path: process.env.PUBLIC_URL + '/images/walk/',
-        idle: { name: 'idle', length:11 , transition: false }
+        idle: { name: 'idle', length:12 , transition: false }
         // lookSide: {name: 'lookSide', length: 4, transition: true, 
         // forwardAnimation: 'lookSideIdle', backwardAnimation: 'idle'},
         // lookSideIdle: { name: 'lookSideIdle', length: 1, transition: false }

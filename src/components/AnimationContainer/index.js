@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { countState } from '../../recoil/atoms'
 import { useRecoilValue } from 'recoil';
 
-function AnimationContainer({cr}) {
+function AnimationContainer({ cr }) {
     const count = useRecoilValue(countState);
     const [switching, setSwitching] = useState(false)
     const [playbackDirection, setPlaybackDirection] = useState('forward')
@@ -13,19 +13,15 @@ function AnimationContainer({cr}) {
     const [nextAnimation, setNextAnimation] = useState()
     const [loadCount, setLoadCount] = useState(0)
 
-    
+
 
 
     const clickHandler = (event) => {
-// console.log(creature, animation, internalCount)
-//         var rect = event.target.getBoundingClientRect();
-//         var x = event.clientX - rect.left;
-//         var y = event.clientY - rect.top;
-        if (!animation.transition) {
 
-           setSwitching(!switching)
+        if (!animation.transition) {
+            setSwitching(!switching)
         } else {
-             setAnimation(creature.lookSide)
+            setAnimation(creature.lookSide)
             setNextAnimation(playbackDirection === 'forward'
                 ? creature.idle
                 : creature.lookSideIdle);
@@ -33,7 +29,7 @@ function AnimationContainer({cr}) {
         }
     }
 
-    const sw = () => {
+    const switcher = () => {
         if (internalCount === animation.length) {
             setSwitching(false)
             switch (animation.name) {
@@ -44,26 +40,22 @@ function AnimationContainer({cr}) {
                     setPlaybackDirection('backward'); setNextAnimation(creature.idle);
                     return;
             }
-        } else {
-
         }
 
 
 
     }
 
-    const doRandom = () =>{
-        return Math.floor(Math.random() * 20)
+    const doRandom = (n) => {
+        return Math.floor(Math.random() * n)
     }
     useEffect(() => {
 
         !creature && setCreature(cr)
         creature && !animation && setAnimation(creature.idle)
-        
-      creature && creature.random &&  doRandom() === 6 && clickHandler()
+        creature && creature.random && doRandom(30) === 1 && clickHandler()
 
-
-        if(animation) {
+        if (animation) {
             if (playbackDirection === 'forward') {
                 if (internalCount === animation.length) {
                     if (animation.transition) {
@@ -74,6 +66,7 @@ function AnimationContainer({cr}) {
                     setInternalCount(internalCount + 1)
                 }
             }
+
             else if (playbackDirection === 'backward') {
                 if (internalCount === 1) {
                     if (animation.transition) {
@@ -84,7 +77,7 @@ function AnimationContainer({cr}) {
                     setInternalCount(internalCount - 1)
                 }
             }
-            switching && !animation.transition && sw()
+            switching && !animation.transition && switcher()
         }
 
 
@@ -92,20 +85,20 @@ function AnimationContainer({cr}) {
 
     return (
         <>
-            {creature && animation  && <div onClick={(event) => { clickHandler(event) }} style={{ position: 'relative', height: '500px', width: '500px' }}>
+            {creature && animation && <div onClick={(event) => { clickHandler(event) }} style={{ position: 'relative', height: '500px', width: '500px' }}>
                 {Object.values(creature).map((animationObject, index) => {
-                    return Array.from({ length: animationObject.length}, (x, i) => i + 1).map(x => {
-                        return <img onLoad={()=>{setLoadCount(loadCount + 1)}}
-                        style={{
-                            position: 'absolute', transform: `scaleX(${flipHorizontal})`,
-                            opacity: internalCount === x && animationObject.name === animation.name ? 1 : 0,
-                            height:300,
-                            width:'auto'
-                        }}
+                    return Array.from({ length: animationObject.length }, (x, i) => i + 1).map(x => {
+                        return <img onLoad={() => { setLoadCount(loadCount + 1) }}
+                            style={{
+                                position: 'absolute', transform: `scaleX(${flipHorizontal})`,
+                                opacity: internalCount === x && animationObject.name === animation.name ? 1 : 0,
+                                height: 300,
+                                width: 'auto'
+                            }}
                             src={`${creature.path}${animationObject.name}/${animationObject.name}-${x}.png`} />
                     })
                 })}
-{internalCount}
+                {internalCount}
                 {animation.name}
             </div>}
 
