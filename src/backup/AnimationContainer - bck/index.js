@@ -15,18 +15,17 @@ function AnimationContainer({ cr }) {
 
     const [animation, setAnimation] = useState()
     const [creature, setCreature] = useState()
-  
-    
+
+
 
     const clickHandler = () => {
-
-        if (!animation.transition) {
+        if (!animation.isTransition) {
             setSwitching(!switching)
         } else {
-            setAnimation(creature.lookSide)
+            setAnimation(creature.actions[1])
             setNextAnimation(playbackDirection === 'forward'
-                ? creature.idle
-                : creature.lookSideIdle);
+                ? creature.actions[0]
+                : creature.actions[2]);
             setPlaybackDirection(playbackDirection === 'forward' ? 'backward' : 'forward');
         }
     }
@@ -34,19 +33,20 @@ function AnimationContainer({ cr }) {
     const switcher = () => {
         if (internalCount === animation.length) {
             setSwitching(false)
-            switch (animation.name) {
-                case 'idle': setAnimation(creature.lookSide); setInternalCount(1); setNextAnimation(creature.lookSideIdle);
+            switch (animation.id) {
+                case 1:
+                    setAnimation(creature.actions[1])
+                    setInternalCount(1)
+                    setNextAnimation(creature.actions[2])
                     return;
-                case 'lookSideIdle': setAnimation(creature.lookSide);
-                    setInternalCount(creature.lookSide.length);
-                    setPlaybackDirection('backward');
-                    setNextAnimation(creature.idle);
+                case 3:
+                    setAnimation(creature.actions[1])
+                    setInternalCount(creature.actions[1].length)
+                    setPlaybackDirection('backward')
+                    setNextAnimation(creature.actions[0])
                     return;
             }
         }
-
-
-
     }
 
     const doRandom = (n) => {
@@ -55,13 +55,13 @@ function AnimationContainer({ cr }) {
     useEffect(() => {
 
         !creature && setCreature(cr)
-        creature && !animation && setAnimation(creature.idle)
+        creature && !animation && setAnimation(creature.actions[0])
         creature && creature.random && doRandom(30) === 1 && clickHandler()
 
         if (animation) {
             if (playbackDirection === 'forward') {
                 if (internalCount === animation.length) {
-                    if (animation.transition) {
+                    if (animation.isTransition) {
                         setAnimation(nextAnimation); setInternalCount(1);
                     }
                     setInternalCount(1)
@@ -72,7 +72,7 @@ function AnimationContainer({ cr }) {
 
             else if (playbackDirection === 'backward') {
                 if (internalCount === 1) {
-                    if (animation.transition) {
+                    if (animation.isTransition) {
                         setAnimation(nextAnimation); setInternalCount(1);
                         setPlaybackDirection('forward')
                     }
@@ -80,7 +80,7 @@ function AnimationContainer({ cr }) {
                     setInternalCount(internalCount - 1)
                 }
             }
-            switching && !animation.transition && switcher()
+            switching && !animation.isTransition && switcher()
         }
 
 
@@ -89,18 +89,19 @@ function AnimationContainer({ cr }) {
     return (
         <>
             {creature && animation && <div onClick={(event) => { clickHandler(event) }} style={{ position: 'relative', height: '500px', width: '500px' }}>
-                {Object.values(creature).map((animationObject, index) => {
+                {creature.actions.map((animationObject, index) => {
                     return Array.from({ length: animationObject.length }, (x, i) => i + 1).map(x => {
                         return <img onLoad={() => { setLoadCount(loadCount + 1) }}
                             style={{
                                 position: 'absolute', transform: `scaleX(${flipHorizontal})`,
                                 opacity: internalCount === x && animationObject.name === animation.name ? 1 : 0,
-                                height: 400,
+                                height: 300,
                                 width: 'auto'
                             }}
-                            src={`${creature.path}${animationObject.name}/${animationObject.name}-${x}.png`} />
+                            src={`${creature.path}${animationObject.name}/${x}.png`} />
                     })
                 })}
+
                 {internalCount}
                 {animation.name}
             </div>}

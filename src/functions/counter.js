@@ -1,5 +1,5 @@
 import {useRef, useEffect } from "react";
-import {countState, loopLength, animationSpeed, switchAnimation} from '../recoil/atoms'
+import {countState, animationSpeed} from '../recoil/atoms'
 import {  
     useSetRecoilState,
     useRecoilValue
@@ -7,7 +7,6 @@ import {
 
 const Counter = () => {
     const setCount = useSetRecoilState(countState);
-
     const speed = useRecoilValue(animationSpeed)
     const requestRef = useRef();
     const previousTimeRef = useRef();

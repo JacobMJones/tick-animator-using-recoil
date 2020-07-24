@@ -1,13 +1,5 @@
-export const creatures = {
-    plantEye: {
-        clickable: true,
-        random: false,
-        path: process.env.PUBLIC_URL + '/images/plantEye/',
-        totalImageCount: 28,
-        idle: { name: 'idle', length: 10, transition: false },
-        lookSide: { name: 'lookSide', length: 14, transition: true, forwardAnimation: 'lookSideIdle', backwardAnimation: 'idle' },
-        lookSideIdle: { name: 'lookSideIdle', length: 4, transition: false }
-    },
+const entityTypes = {
+
     ella: {
         clickable: true,
         random: true,
@@ -31,30 +23,66 @@ export const creatures = {
         lookSide: { name: 'lookSide', length: 10, transition: true, forwardAnimation: 'lookSideIdle', backwardAnimation: 'idle' },
         lookSideIdle: { name: 'lookSideIdle', length: 6, transition: false }
     },
-    bird: {
+    plantEye: {
+        actions: [
+            { id: 1, name: 'idle', length: 10, isTransition: false }
+        ],
         clickable: true,
         random: false,
+        path: process.env.PUBLIC_URL + '/images/plantEye/',
+        totalImageCount: 10
+    },
+    bird: {
+        actions: [
+            { id: 1, name: 'idle', length: 3 },
+            { id: 2, name: 'walking', length: 5 },
+            { id: 3, name: 'flying', length: 8 }
+        ],
+        clickable: true,
         path: process.env.PUBLIC_URL + '/images/bird/',
-        totalImageCount: 13,
-        idle: { name: 'idle', length: 5, transition: false },
-        lookSide: {
-            name: 'lookSide', length: 4, transition: true,
-            forwardAnimation: 'lookSideIdle', backwardAnimation: 'idle'
-        },
-        lookSideIdle: { name: 'lookSideIdle', length: 4, transition: false }
+        totalImageCount: 16,
+        xSize:100,
+        ySize:100
+    },
+   caterpillar: {
+        actions: [
+            { id: 1, name: 'idle', length: 4 },
+            { id: 2, name: 'moving', length: 8 }
+        ],
+        clickable: true,
+        path: process.env.PUBLIC_URL + '/images/caterpillar/',
+        totalImageCount:12,
+        xSize:90,
+        ySize:30
+    },
+    worm: {
+        actions: [
+            { id: 1, name: 'idle', length: 8 },
+            { id: 2, name: 'moving', length: 14 }
+        ],
+        clickable: true,
+        path: process.env.PUBLIC_URL + '/images/worm/',
+        totalImageCount: 22,
     },
     eye: {
+
+
+        actions: [
+            { id: 1, name: 'open', length: 1, isTransition: false },
+            {
+                id: 2, name: 'blink', length: 4, isTransition: true,
+                forwardAnimation: 'flyingHigh', backwardAnimation: 'flying'
+            },
+            { id: 3, name: 'open', length: 1, isTransition: false }],
+
+
+        path: process.env.PUBLIC_URL + '/images/eye/',
         clickable: true,
         random: true,
-        name: 'eye',
-        path: process.env.PUBLIC_URL + '/images/eye/',
-        totalImageCount: 6,
-        idle: { name: 'idle', length: 1, transition: false },
-        lookSide: {
-            name: 'lookSide', length: 4, transition: true,
-            forwardAnimation: 'lookSideIdle', backwardAnimation: 'idle'
-        },
-        lookSideIdle: { name: 'lookSideIdle', length: 1, transition: false }
+
+
+        totalImageCount: 6
+
     },
     background: {
         clickable: false,
@@ -77,3 +105,5 @@ export const creatures = {
         // lookSideIdle: { name: 'lookSideIdle', length: 1, transition: false }
     }
 }
+
+export default entityTypes

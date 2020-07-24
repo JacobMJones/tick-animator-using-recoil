@@ -7,7 +7,7 @@ export const countState = atom({
 
 export const currentlyPlaying = atom({
   key: "animationState",
-  default: 'idle'
+  default: ''
 })
 
 export const loopLength = atom({
@@ -33,4 +33,38 @@ export const fetchComplete = atom({
 export const allImages = atom({
   key:"allImages",
   default:false
+})
+export const mousePosition = atom({
+  key:"mousePosition",
+  default:{x:0,y:0}
+})
+
+export const playerPosition = atom({
+  key:"playerPosition",
+  default:[{x:300, y:700}, {x:500, y:700}]
+})
+
+export const playerDirection = atom({
+  key:"playerDirection",
+  default:{x:1, y:1}
+})
+
+
+export const playerAnim = atom({
+  key:"playerAnim",
+  default:null
+})
+export const focusedEntity = atom({
+  key:"focusedEntity",
+  default:null
+})
+
+export const entities = atom({
+  key:"entities",
+  default:null
+})
+
+export const entityTypes = atom({
+  key:"entityTypes",
+  default:null
 })
