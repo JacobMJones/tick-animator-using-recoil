@@ -1,30 +1,30 @@
-import {useRef, useEffect } from "react";
-import {countState, animationSpeed} from '../recoil/atoms'
-import {  
-    useSetRecoilState,
-    useRecoilValue
-  } from 'recoil'
+import { useRef, useEffect } from "react";
+import { countState, animationSpeed } from '../recoil/atoms'
+import {
+  useSetRecoilState,
+  useRecoilValue
+} from 'recoil'
 
 const Counter = () => {
-    const setCount = useSetRecoilState(countState);
-    const speed = useRecoilValue(animationSpeed)
-    const requestRef = useRef();
-    const previousTimeRef = useRef();
+  const setCount = useSetRecoilState(countState);
+  const speed = useRecoilValue(animationSpeed)
+  const requestRef = useRef();
+  const previousTimeRef = useRef();
 
-    const animate = time => {
-        setTimeout(function () {
-            setCount(prevCount => (( prevCount + 1)));
-            previousTimeRef.current = time;
-            requestAnimationFrame(animate);
-        }, 1000 / speed);
-    };
+  const animate = time => {
+    setTimeout(function () {
+      setCount(prevCount => ((prevCount + 1)));
+      previousTimeRef.current = time;
+      requestAnimationFrame(animate);
+    }, 1000 / speed);
+  };
 
-    useEffect(() => {
-        requestRef.current = requestAnimationFrame(animate);
-        return () => cancelAnimationFrame(requestRef.current);
-    }, []);
+  useEffect(() => {
+    requestRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(requestRef.current);
+  }, []);
 
-    return null;
+  return null;
 
 };
 

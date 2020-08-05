@@ -17,7 +17,7 @@ export const loopLength = atom({
 
 export const animationSpeed = atom({
   key:"animationSpeed",
-  default:12
+  default:32
 })
 
 export const switchAnimation = atom({
@@ -28,6 +28,10 @@ export const switchAnimation = atom({
 export const fetchComplete = atom({
   key:"fetchComplete",
   default:false
+})
+export const joystickSensitivity = atom({
+  key:"joystickSensitivity",
+  default:.4
 })
 
 export const allImages = atom({
@@ -66,5 +70,10 @@ export const entities = atom({
 
 export const entityTypes = atom({
   key:"entityTypes",
+  default:null
+})
+
+export const gamepadInput = atom({
+  key:"gamepadInput",
   default:null
 })

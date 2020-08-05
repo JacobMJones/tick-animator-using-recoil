@@ -1,176 +1,243 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import entityTypes from '../../entities/index.js'
-import collisionHandler from '../../functions/collisionHandler'
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import {
-    playerPosition,
-    playerDirection,
-    playerAnim,
-    countState,
-    entities,
-    focusedEntity,
-    mousePosition
+  countState,
+  joystickSensitivity
 } from '../../recoil/atoms'
-
-import { Stage, Layer } from 'react-konva';
+import createEntities from '../../functions/createEntities'
+import createPlayer from '../../functions/createPlayer'
+import { Stage, Layer, Image} from 'react-konva';
 import Sprite from '../Sprite'
 
 
-function Layout() {
-
-    const count = useRecoilValue(countState)
-    const [ents, setEntities] = useRecoilState(entities)
-    const [made, setMade] = useState(false)
 
 
+function Layout2() {
 
-    const makeEntities = (ents) => {
-        setMade(true)
-        let allEntities = []
-        Object.keys(ents).map((item, index) => {
-            for (let i = 0; i < ents[item]; i++) {
-                const entity = {
-                    id: allEntities.length,
-                    position: {
-                        x: Math.floor(Math.random() * window.innerWidth / 10),
-                        y: Math.floor(Math.random() * window.innerHeight / 10)
-                    },
-                    key: `entity-${index}-${i}`,
+  const count = useRecoilValue(countState)
+  const joySensitivity = useRecoilValue(joystickSensitivity)
+  const [ents, setEntities] = useState()
+  const [player, setPlayer] = useState()
+  const [background, setBackground] = useState()
+  const [screenPlayer, setScreenPlayer] = useState(0)
+  const [buttonPressed, setButtonPressed] = useState(false)
 
-                    type: entityTypes[item],
-                    draggable: false,
-                    selected: false,
-                    actionIndex: 0,
-                    xSize: entityTypes[item].xSize,
-                    ySize: entityTypes[item].ySize,
-                    text: `Action : ${entityTypes[item].actions[0].name}`
-                }
-                allEntities.push(entity)
+
+  const onUnload = (event) => {
+    window.scroll(0, 0)
+  }
+
+  //oncomponent
+  useEffect(() => {
+    window.addEventListener("beforeunload", onUnload)
+    !player && setPlayer(createPlayer({ bird: 0 }, entityTypes, 'kid'))
+    !ents && setEntities(createEntities({ black: 3, bird: 12 }, entityTypes, 'kid'))
+    return () => {
+      window.removeEventListener("beforeunload", onUnload);
+    };
+  }, [])
+  // game loop/
+  useEffect(() => {
+    player && updatePlayer()
+    ents && updateEnts()
+  }, [count])
+
+  const updatePlayer = () => {
+
+    const data = navigator.getGamepads();
+
+    //there are two players
+    let p = player.map((ent, index) => {
+
+
+      //advance the sprite image
+      if (ent.internalCount >= ent.images[ent.actionIndex].length) {
+        ent.internalCount = 1
+      } else {
+        ent.internalCount = ent.internalCount + 1
+      }
+
+
+      if (ent.energy > 10) {
+        //check controller input
+        if (data
+          && data[0]) {
+
+          //the multiplier is used to get the correct joystick
+          // 0 , 1 are x and y left joystick
+          // 2 , 3 are x and y right joystick
+          const multiplier = index === 0 ? 0 : 2
+
+          if (Math.abs(data[0].axes[0 + multiplier]) > joySensitivity
+            || Math.abs(data[0].axes[1 + multiplier]) > joySensitivity) {
+
+            let x = Math.abs(data[0].axes[0 + multiplier]) > joySensitivity
+              ? data[0].axes[0 + multiplier]
+              : 0
+
+            let y = Math.abs(data[0].axes[1 + multiplier]) > joySensitivity
+              ? data[0].axes[1 + multiplier]
+              : 0
+
+            x = ent.position.x + x * ent.speed
+            y = ent.position.y + y * ent.speed
+
+            ent.position = { x, y }
+            ent.actionIndex = 1
+          } else {
+            ent.actionIndex = 0
+          }
+
+          //xScale is used to flip the image horizontally so it is facing the direction it is moving
+          ent.xScale = data[0].axes[0 + multiplier] > .4 ? -1 : data[0].axes[0 + multiplier] < -.4 ? 1 : ent.xScale
+
+          //if the a button is pressed which player the camera follows changes
+          if (data[0].buttons[0].pressed && !buttonPressed) {
+            setScreenPlayer(screenPlayer === 1 ? 0 : 1)
+            setButtonPressed(true)
+            setTimeout(() => setButtonPressed(false), 1200)
+          }
+        }
+      }
+      //player regenerates energy from resting
+      if (ent.actionIndex === 0 && ent.energy < 100) {
+        ent.energy = ent.energy + 1
+      }
+
+      //this shows the distance between the player and the entities
+      let p = ents.map(a => { return { ...a } })
+      p.map((item, index) => {
+        let xDif = Math.abs(ent.position.x - item.position.x)
+        let yDif = Math.abs(ent.position.y - item.position.y)
+        if (xDif < 20 && yDif < 20) {
+          console.log(item.scaredOf)
+        }
+      })
+      return ent
+    })
+    window.scroll(p[screenPlayer].position.x - window.innerWidth / 2, p[screenPlayer].position.y - window.innerHeight / 2)
+    setPlayer(p)
+  }
+  const updateEnts = () => {
+
+    let p = ents.map(a => { return { ...a } })
+    p.map((ent, index) => {
+
+      //if the entity doesn't have a special situation it defaults to 0 (idle)
+      ent.actionIndex = 0
+
+      //advance the sprite image
+      if (ent.internalCount >= ent.images[ent.actionIndex].length) {
+        ent.internalCount = 1
+      } else {
+        ent.internalCount = ent.internalCount + 1
+      }
+
+      //ent.scaredOf is which player, the one at index 0 or 1 of the player array, the entity fears (runs from and can be killed/acted on by)
+      //this checks the distance from that player, the other player is currently ignored
+      let xDif = Math.abs(player[ent.scaredOf].position.x - ent.position.x)
+      let yDif = Math.abs(player[ent.scaredOf].position.y - ent.position.y)
+
+      //is the entity being hit
+      if (xDif < 20 && yDif < 20) {
+        ent.internalCount = 1
+        ent.actionIndex = 2
+        ent.energy = 0
+      }
+
+      //is the entity close enough to run away? then run.
+      if (xDif < ent.fearDistance
+        && yDif < ent.fearDistance
+      ) {
+        if (ent.energy > 20) {
+          ent.actionIndex = 1
+          if (player[ent.scaredOf].position.x > ent.position.x) {
+            ent.position.x = ent.position.x - ent.speed
+            ent.xScale = 1
+          } else {
+            ent.position.x = ent.position.x + ent.speed
+            ent.xScale = -1
+          }
+          ent.position.y = player[ent.scaredOf].position.y > ent.position.y
+            ? ent.position.y = ent.position.y - ent.speed
+            : ent.position.y = ent.position.y + ent.speed
+          ent.internalCount = ent.actionIndex === 0 ? 1 : ent.internalCount
+        }
+      }
+
+      //entity regenerates energy from resting
+      if (ent.actionIndex !== 1 && ent.energy < 100) {
+        ent.energy = ent.energy + 1
+      }
+      return ent
+    })
+    setEntities(p)
+  }
+
+  return (
+    <div style={{ width: 4000, height: 4000, overflow: 'hidden' }}>
+      <div >
+        <Stage
+          width={4000}
+          height={4000}
+        >
+          <Layer>
+            {background && background.map((item, index) => {
+
+              return <Image
+
+                key={`background-${index}`}
+                image={item.images[0][1]}
+                height={item.ySize}
+                width={item.xSize}
+                x={item.position.x}
+                y={item.position.y}
+                offsetX={item.xSize / 2}
+                offsetY={item.ySize / 2}
+
+              />
+            })}
+
+            {ents && ents.map((item) => {
+              return <Sprite
+                key={`sprite-${item.id}`}
+                entity={item}
+              >
+              </Sprite>
+            })
             }
 
-        })
-        console.log(allEntities, typeof allEntities)
-        setEntities(allEntities)
-    }
-
-    const updateEntity = (index, key, value) => {
-        console.log(index, key, value)
-        let p = ents.map(a => { return { ...a } })
-        p[index][key] = value
-        setEntities(p);
-    }
-
-
-
-
-
-    useEffect(() => {
-        !ents && !made && makeEntities({ bird: 1, caterpillar: 1 })
-        //     ents && collisionHandler()
-    }, [count])
-
-    const handleDragStart = e => {
-        console.log('handleDragStart', e)
-        const id = e.target.id();
-        const items = ents.map(a => { return { ...a } }).slice();
-        const item = items.find(i => i.id === id);
-        const index = items.indexOf(item);
-
-        console.log(item)
-
-        items.splice(index, 1);
-
-        items.push(item);
-        setEntities(items)
-    };
-
-    
-    const h = e => {
-      const id = e.target.id();
-        // const items = ents.map(a => { return { ...a } }).slice();
-        // const item = items.find(i => i.id === id);
-
-
-
-    };
-
-    const handleDragEnd = e => {
-        console.log('handleDragStart', e)
-        const id = e.target.id();
-        const items = ents.map(a => { return { ...a } });
-        const item = items[id]
-
-        items[id] = {
-            ...item,
-            x: e.target.x(),
-            y: e.target.y()
-        };
-        setEntities(items)
-    };
-
-
-    return (
-        <Stage width={window.innerWidth} height={window.innerHeight}>
-            <Layer
-
-                onDragStart={(e) => {
-                    //     var id = e.target.name();
-                    //   console.log(id)
-                    //   var targetRect = e.target.getClientRect();
-                    // console.log(targetRect)
-                    //  console.log(target.attrs.id, ents[target.attrs.id].type.actions[ents[target.attrs.id].actionIndex].name)
-                    //    updateEntity(target.attrs.id, 'position', e.target._lastPos)
-                    //   updateEntity(target.attrs.id, 'selected', false)
-                    // shiftEntityToFront(e.target.attrs.id)
-                }}
-                onDragEnd={(e) => {
-                    //     var target = e.target;
-                    //    var targetRect = e.target.getClientRect();
-                    //   console.log(targetRect)
-
-                    //    updateEntity(target.attrs.id, 'position', e.target._lastPos)
-                    //   updateEntity(target.attrs.id, 'selected', false)
-
-                }}
-                onDragMove={(e) => {
-                    //     const target = e.target;
-
-                    //shows entity state
-                    //    console.log(target.attrs.id, ents[target.attrs.id].type.actions[ents[target.attrs.id].actionIndex].name)
-                    //      updateEntity(target.attrs.id, 'position', target._lastPos)
-                }}
-            >
-
-                {ents && ents.map((item, index) => {
-
-                    return <Sprite
-                        key={`sprite-${index}`}
-                        ents={ents}
-                        h={h}
-                        handleDragStart={handleDragStart}
-                        
-                        handleDragEnd={handleDragEnd}
-                        count={count}
-                        entity={item}
-                        updateEntity={updateEntity}
-                    />
-                })}
-
-            </Layer>
+            {player && player.map((item) => {
+              //  console.log(item)
+              return <Sprite
+                key={`sprite-${item.id}`}
+                entity={item}
+              >
+              </Sprite>
+            })
+            }
+          </Layer>
         </Stage>
-
-    );
-
-
+      </div >
+    </div>
+  );
 }
 
-
-export default Layout;
-
+export default Layout2;
 
 
-// var swapArrayElements = function (arr, indexA, indexB) {
-//     var temp = arr[indexA];
-//     arr[indexA] = arr[indexB];
-//     arr[indexB] = temp;
-// };
+Object.size = function (obj) {
+  var size = 0, key;
+  for (key in obj) {
+    if (obj.hasOwnProperty(key)) size++;
+  }
+  return size;
+};
+
+
+
+    //   setBackground(createBackground({ flowerRed: 1 }, backgroundTypes))
+    //  makeBackground()
+    //import backgroundTypes from '../../backgroundObjects/index.js'
+   // import createBackground from '../../functions/createBackground'
