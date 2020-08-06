@@ -21,7 +21,7 @@ const createEntities = (ents, entityTypes, playerType) => {
         energy: 100,
         speed: entityTypes[item].speed + Math.floor(Math.random() * 3),
         fearDistance: entityTypes[item].fearDistance,
-        id: allEntities.length,
+        //id: allEntities.length,
         position: {
           x: Math.floor(Math.random() * (window.innerWidth)),
           y: Math.floor(Math.random() * (window.innerHeight))
@@ -37,7 +37,8 @@ const createEntities = (ents, entityTypes, playerType) => {
         xSize: entityTypes[item].xSize,
         ySize: entityTypes[item].ySize,
         text: `Action : ${entityTypes[item].actions[0].name}`,
-        internalCount: Math.floor(Math.random() * 12)
+        internalCount: Math.floor(Math.random() * 12),
+        behavior: 'idle'
       }
 
       // console.log(entity)

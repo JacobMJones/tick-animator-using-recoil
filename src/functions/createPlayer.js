@@ -26,12 +26,13 @@ const createPlayer = (entityTypes, playerType, id, fill) => {
   console.log('in create players')
   return {
     canMove: true,
-    energy: 100,
-    speed: 6,
+    behavior: 'idle',
+    energy: 200,
+    speed: 12,
     images: loadImages(entityTypes[playerType].actions, entityTypes[playerType].path),
     id: `player-${id}`,
     position: {
-      x: 200,
+      x: 200 * id,
       y: 200
     },
     key: `player-${id}-${id}`,
