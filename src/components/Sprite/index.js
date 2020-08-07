@@ -5,25 +5,16 @@ function Sprite({
   entity
 }) {
   Sprite.displayName = "Sprite"
-  // const imageRef = useRef()
-
-  //console.log(entity)
-
-
 
   return <Group>
-
     <Image
       onMouseEnter={() => { console.log(entity) }}
-      //fill = 'lightblue'
       id={entity.id}
       kaleidoscopePower={200}
-      // ref={imageRef}
       key={`${entity.key}-image`}
       name={entity.key}
       scaleX={entity.xScale}
       scaleY={entity.yScale}
-      //  fill={entity.fill}
       filters={[Konva.Filters.Noise]}
       noise={1}
       x={entity.position.x}
@@ -34,7 +25,6 @@ function Sprite({
       width={entity.xSize}
       image={entity.images[entity.actionIndex][entity.internalCount - 1]}
     />
-
     <Text
       x={entity.position.x - entity.xSize / 2}
       y={entity.position.y - 20 - entity.ySize / 2}

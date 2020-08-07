@@ -78,13 +78,13 @@ function Layout2() {
   const newEntDirection = (ent, data, multiplier) => {
     return data[0].axes[0 + multiplier] > .4 ? -1 : data[0].axes[0 + multiplier] < -.4 ? 1 : ent.xScale
   }
+
   const incrementFrameAnimation = (ent) => {
-    if (ent.internalCount >= ent.images[ent.actionIndex].length) {
-      return ent.internalCount = 1
-    } else {
-      return ent.internalCount = ent.internalCount + 1
-    }
+    return ent.internalCount >= ent.images[ent.actionIndex].length ?
+      ent.internalCount = 1
+      : ent.internalCount + 1
   }
+
 
   const checkInputs = (ent, playerIndex) => {
     const data = navigator.getGamepads();
