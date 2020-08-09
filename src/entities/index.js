@@ -27,7 +27,7 @@ const entityTypes = {
     xSize: 100,
     ySize: 100,
     speed: 5,
-    fearDistance: 100
+    fearDistance: 200
   },
   kid: {
     scaredOf: 'adult',

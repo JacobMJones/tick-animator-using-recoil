@@ -11,7 +11,7 @@ const resting = () => {
 
 const moving = (ent, playerIndex) => {
   ent.actionIndex = 1
-  ent.energy = ent.energy > 0 ? ent.energy - 1 : ent.energy
+  ent.energy = ent.energy > 0 ? ent.energy : ent.energy
   return ent
 }
 

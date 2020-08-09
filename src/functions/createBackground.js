@@ -2,41 +2,36 @@ import loadImages from './loadImages'
 
 
 
-const createBackground = (background, backgroundTypes) => {
+const createBackground = (backgroundToCreate, backgroundTypes, background, startPoint) => {
+  console.log('background')
+  let allBackground = background
 
-  let allBackground = []
 
 
-
-  Object.keys(background).map((item, index) => {
-    for (let i = 0; i < background[item]; i++) {
+  Object.keys(backgroundToCreate).map((item, index) => {
+    for (let i = 0; i < backgroundToCreate[item]; i++) {
       let s = Math.random() * 1 + (.6)
 
       let sq = s > 1 ? 1 : s
       //console.log(backgroundTypes, item)
       const backgroundObject = {
-        images: loadImages(backgroundTypes[item].actions, backgroundTypes[item].path),
+        images: loadImages(backgroundTypes[item].actions, backgroundTypes[item].path, console.log('po')),
         fearDistance: Math.floor(Math.random() * 280) + 200,
-        actionIndex:0,
+        actionIndex: 0,
         id: allBackground.length,
         position: {
-          x: Math.floor(Math.random() * (window.innerWidth*2)),
-          y: i * 100
+          x: Math.floor(Math.random() * 4000),
+          y: Math.floor(Math.random() * window.innerHeight) + (startPoint * window.innerHeight)
         },
         key: `backgroundObject-${index}-${i}`,
-
-        type: backgroundTypes[item],
-
-        xSize: 50,
-        ySize: 50,
-
+     //   type: backgroundTypes[item],
+        xSize: 100 + Math.random() * 100,
+        ySize: 100+ Math.random() * 100,
       }
-
       allBackground.push(backgroundObject)
     }
-
   })
-  console.log('in create back')
+  console.log('in create back', allBackground)
   return allBackground
 };
 
