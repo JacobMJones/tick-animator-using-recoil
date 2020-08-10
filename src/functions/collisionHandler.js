@@ -23,7 +23,7 @@ function newCheck(r1, r2) {
 
 const collisionHandler = (player, arr) => {
   //console.log(player, arr)
-  let ind;
+  let ind = []
   let x = player.position.x
   let y = player.position.y
 
@@ -37,7 +37,7 @@ const collisionHandler = (player, arr) => {
 
     if (intersecting.xIntersection.xIntersectionHitting &&
       intersecting.yIntersection.yIntersectionHitting) {
-      ind = { ...intersecting, item }
+      ind.push({ ...intersecting, item })
     }
 
 
