@@ -13,7 +13,7 @@ const createPlayer = (entityTypes, playerType, id, fill) => {
     id: `player-${id}`,
     position: {
       x: 200 * id,
-      y: 200
+      y: 100
     },
     key: `player-${id}-${id}`,
     farAway: false,

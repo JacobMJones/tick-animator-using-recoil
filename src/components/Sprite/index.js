@@ -20,8 +20,8 @@ function Sprite({
       noise={1}
       x={entity.position.x}
       y={entity.position.y}
-      offsetX={entity.xSize / 2}
-      offsetY={entity.ySize / 2}
+      offsetX={entity.xSize}
+      offsetY={entity.ySize}
       height={entity.ySize}
       width={entity.xSize}
       image={entity.images[entity.actionIndex][entity.internalCount - 1]}

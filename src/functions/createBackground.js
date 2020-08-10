@@ -20,18 +20,20 @@ const createBackground = (backgroundToCreate, backgroundTypes, background, start
         actionIndex: 0,
         id: allBackground.length,
         position: {
-          x: Math.floor(Math.random() * 4000),
-          y: Math.floor(Math.random() * window.innerHeight) + (startPoint * window.innerHeight)
+
+            x: Math.floor(Math.random() * 4000),
+            y: Math.floor(Math.random() * window.innerHeight) + (startPoint * window.innerHeight)
         },
         key: `backgroundObject-${index}-${i}`,
-     //   type: backgroundTypes[item],
-        xSize: 100 + Math.random() * 100,
-        ySize: 100+ Math.random() * 100,
+        //   type: backgroundTypes[item],
+        xSize: 100 + Math.floor(Math.random() * 100),
+        ySize: 100 + Math.floor(Math.random() * 100),
       }
       allBackground.push(backgroundObject)
     }
   })
   console.log('in create back', allBackground)
+
   return allBackground
 };
 
