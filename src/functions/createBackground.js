@@ -1,6 +1,9 @@
 import loadImages from './loadImages'
 
 
+function getRandomArbitrary(min, max) {
+  return Math.random() * (max - min) + min;
+}
 
 const createBackground = (backgroundToCreate, backgroundTypes, background, startPoint) => {
   console.log('background')
@@ -21,13 +24,15 @@ const createBackground = (backgroundToCreate, backgroundTypes, background, start
         id: allBackground.length,
         position: {
 
-            x: Math.floor(Math.random() * 4000),
-            y: Math.floor(Math.random() * window.innerHeight) + (startPoint * window.innerHeight)
+          //  x: Math.floor(Math.random() * window.innerWidth )/500 * 1000,
+          x: (Math.floor(Math.random() * (window.innerWidth/25)) * 100),
+          y: (Math.floor(Math.random() * (window.innerHeight/100)) * 100)
+          + (window.innerHeight * startPoint)
         },
         key: `backgroundObject-${index}-${i}`,
         //   type: backgroundTypes[item],
-        xSize: 100 + Math.floor(Math.random() * 100),
-        ySize: 100 + Math.floor(Math.random() * 100),
+        xSize: 100,
+        ySize: 100
       }
       allBackground.push(backgroundObject)
     }

@@ -7,9 +7,9 @@ function Sprite({
   Sprite.displayName = "Sprite"
 
   return <Group>
-        <Rect
+        <Image
       onMouseEnter={() => { console.log(entity) }}
-      fill={entity.fill}
+     // fill={entity.fill}
       id={entity.id}
       kaleidoscopePower={200}
       key={`${entity.key}-image`}

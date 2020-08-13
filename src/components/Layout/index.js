@@ -15,14 +15,15 @@ import { Stage, Layer, Image, Rect } from 'react-konva'
 import Sprite from '../Sprite'
 import loadImages from '../../functions/loadImages'
 import collisionHandler from '../../functions/collisionHandler'
-let sectionsMade = 0
+let sectionsMade = 1
 let canSetScreenPlayer = true
+const sticks = ['leftStick', 'rightStick']
 function Layout2() {
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const count = useRecoilValue(countState)
 
   const joySensitivity = useRecoilValue(joystickSensitivity)
-  const [ents, setEntities] = useState([])
+  const [ents, setEntities] = useState()
   const [player, setPlayer] = useState()
   const [background, setBackground] = useState([])
   const [screenPlayer, setScreenPlayer] = useState(0)
@@ -34,15 +35,19 @@ function Layout2() {
   useEffect(() => {
     window.addEventListener("beforeunload", onUnload)
     !imagesLoaded && preloadImages()
-    !player && setPlayer(createPlayer({ bird: 0 }, entityTypes, 'kid'))
 
+    //!ents && setEntities(createEntities({ black: 12, bird: 2 }, entityTypes, ents, sectionsMade))
+    !player && setPlayer(createPlayer({ bird: 0 }, entityTypes, 'kid'))
     //**** Commented out because instead of making the world right away, make it assneeded */
     //** world and ents are generated in the player update */
 
-    //  !ents && setEntities(createEntities({ black: 60, bird: 2 }, entityTypes, 0))
+    !ents && setEntities(createEntities({ black: 20 }, entityTypes, [], 0))
+
+    // !ents && setEntities(createEntities({ black: 60, bird: 2 }, entityTypes, 0))
     setBackground(
-      createBackground({ flowerRed: 40 }, backgroundTypes, background, 0))
-    // )
+      createBackground({ flowerRed: 22 }, backgroundTypes, background, 0))
+    //  sectionsMade = 2
+
     return () => {
       window.removeEventListener("beforeunload", onUnload);
     };
@@ -50,7 +55,7 @@ function Layout2() {
   // game loop/
   useEffect(() => {
     player && updatePlayer()
-    ents && updateEnts()
+     ents && updateEnts()
 
 
   }, [count])
@@ -106,12 +111,46 @@ function Layout2() {
     //if the a button is pressed which player the camera follows changes
 
   }
+  const up = (setScreenPlayer, screenPlayer, canSetScreenPlayer, player) => {
+
+  }
+  const playerCheckBackgroundHits = (e, controllerX, controllerY) => {
+    let temp = e
+    temp.position = e && {
+      x: e.position.x + controllerX * (e.speed * (e.energy / 50))
+      , y: e.position.y + controllerY * (e.speed * (e.energy / 50))
+    }
+    let col = temp && collisionHandler(temp, background)
+    if (!col) {
+      e.position = temp.position
+    } else {
+
+      col.map((item, index) => {
+        if (item.xIntersection.xDif < item.yIntersection.yDif) {
+
+          e.position.x = item.item.position && item.xIntersection.xSide === 'left'
+            ? item.item.position.x
+            : item.xIntersection.xSide === 'right'
+              ? item.item.position.x + item.item.xSize + e.xSize
+              : item.item.position.x
+        }
+        else {
+          console.log('y')
+          e.position.y = item.item.position && item.yIntersection.ySide === 'top'
+            ? item.item.position.y
+            : item.yIntersection.ySide === 'bottom'
+              ? item.item.position.y + item.item.ySize + e.ySize
+              : item.item.position.y
+        }
+      })
+    }
+    return e
+  }
+
   const updatePlayer = () => {
     const controllerInput = checkInputs()
-
+    // player[0].position.x !== undefined && console.log(player)
     if (controllerInput.aButton.pressed) {
-      console.log('screen player', screenPlayer)
-
       if (canSetScreenPlayer) {
         setScreenPlayer(screenPlayer === 0 ? 1 : 0)
         canSetScreenPlayer = false
@@ -119,7 +158,6 @@ function Layout2() {
       }
     }
     let p = player.map((ent, playerIndex) => {
-
       ent.internalCount = incrementInternalCount(ent)
       switch (ent.behavior) {
         case 'idle': ent = idle(ent, playerIndex)
@@ -128,139 +166,30 @@ function Layout2() {
           break;
       }
       //...make into a single function...
-      if (controllerInput.leftStick.x && playerIndex === 0) {
-        let temp = ent
-        temp.position.x = ent.position.x + controllerInput.leftStick.x * (ent.speed * (ent.energy / 50))
-        temp.position.y = ent.position.y + controllerInput.leftStick.y * (ent.speed * (ent.energy / 50))
-        let col = collisionHandler(temp, background)
-        if (!col) {
-          ent.position = temp.position
-        } else {
-
-          col.map((item, index) => {
-            console.log('PPPP', item)
-
-            if (item.xIntersection.xDif < item.yIntersection.yDif) {
-              console.log('x')
-              ent.position.x = item.item.position && item.xIntersection.xSide === 'left'
-                ? item.item.position.x
-                : item.xIntersection.xSide === 'right'
-                  ? item.item.position.x + item.item.xSize + ent.xSize
-                  : item.item.position.x
-            }
-            else {
-              console.log('y')
-              ent.position.y = item.item.position && item.yIntersection.ySide === 'top'
-                ? item.item.position.y
-                : item.yIntersection.ySide === 'bottom'
-                  ? item.item.position.y + item.item.ySize + ent.ySize
-                  : item.item.position.y
-            }
-          })
-        }
+      if (controllerInput[sticks[playerIndex]].x && playerIndex === 0) {
+        ent = playerCheckBackgroundHits(ent, controllerInput.leftStick.x, controllerInput.leftStick.y)
       }
-      if (controllerInput.rightStick.x && playerIndex === 1) {
-        let temp = ent
-        temp.position.x = ent.position.x + controllerInput.rightStick.x * (ent.speed * (ent.energy / 50))
-        temp.position.y = ent.position.y + controllerInput.rightStick.y * (ent.speed * (ent.energy / 50))
-        let col = collisionHandler(temp, background)
-
-        //    let totalHits = col.map(() => { })
-        if (!col) {
-          ent.position = temp.position
-        } else {
-
-          col.map((item, index) => {
-            console.log('PPPP', item)
-
-            if (item.xIntersection.xDif < item.yIntersection.yDif) {
-              console.log('x')
-              ent.position.x = item.item.position && item.xIntersection.xSide === 'left'
-                ? item.item.position.x
-                : item.xIntersection.xSide === 'right'
-                  ? item.item.position.x + item.item.xSize + ent.xSize
-                  : item.item.position.x
-            }
-            else {
-              console.log('y')
-              ent.position.y = item.item.position && item.yIntersection.ySide === 'top'
-                ? item.item.position.y
-                : item.yIntersection.ySide === 'bottom'
-                  ? item.item.position.y + item.item.ySize + ent.ySize
-                  : item.item.position.y
-
-            }
-
-
-
-
-            // ent.position.x = item.item.position && item.item.xSide === 'right'
-            // ? item.item.position.x - item.item.xSize - ent.xSize
-            // : item.item.position.x
-
-
-            // if (item.position && item.xIntersection.xDif <= item.yIntersection.yDif) {
-            //   console.log(item)
-            //   ent.position.x = item.xIntersection.xSide === 'left'
-            //     ? item.position.x
-            //     : item.position.x + item.xSize + ent.xSize
-
-
-
-            // }
-            // else if (item.position && item.yIntersection.yDif < item.xIntersection.xDif) {
-            //   ent.position.y = item.yIntersection.ySide === 'bottom'
-            //     ? item.position.y + item.ySize + ent.ySize
-            //     : item.position.y
-
-            //  }
-          })
-
-          // if (totalHits.indexOf('right') !== -1) {
-          //   let hitIndex = totalHits.indexOf('right')
-          //   console.log('index', totalHits.indexOf('right'))
-          //    ent.position.x = totalHits.position.x
-          // }
-
-          // console.log('total', totalHits)
-        }
-
-        // else {
-
-        //   if (col.xIntersection.xDif < col.yIntersection.yDif) {
-        //     ent.position.x = col.xIntersection.xSide === 'left'
-        //       ? col.item.position.x
-        //       : col.item.position.x + col.item.xSize + ent.xSize
-        //   }
-        //   else {
-        //     ent.position.y = col.yIntersection.ySide === 'bottom'
-        //       ? col.item.position.y + col.item.ySize + ent.ySize
-        //       : col.item.position.y
-        //   }
-        // }
-        // ent.position.x = ent.position.x + controllerInput.leftStick.x * (ent.speed * (ent.energy / 50))
+      else if (controllerInput[sticks[playerIndex]].x && playerIndex === 1) {
+        ent = playerCheckBackgroundHits(ent, controllerInput.rightStick.x, controllerInput.rightStick.y)
       }
-
       //   check if new shit needs to be made
       if (ent.position.y > (window.innerHeight / 2) + (sectionsMade * window.innerHeight)) {
         sectionsMade = sectionsMade + 1
-        createBackground({ flowerRed: 23 }, backgroundTypes, background, sectionsMade)
-        setEntities(createEntities({ black: 12, bird: 2 }, entityTypes, ents, sectionsMade))
+        setBackground(createBackground({ flowerRed: 40 }, backgroundTypes, background, sectionsMade))
+        sectionsMade > 1 && setEntities(createEntities({ bird: 5 }, entityTypes, ents, sectionsMade))
       }
 
       return ent
     })
-
     window.scroll(p[screenPlayer].position.x - window.innerWidth / 2, p[screenPlayer].position.y - window.innerHeight / 2)
-
     setPlayer(p)
   }
+
   const updateEnts = () => {
     let toDelete;
     let p = ents.map(a => { return { ...a } })
 
-    p.map((ent, index) => {
-
+    p.map(ent => {
       ent.internalCount = incrementInternalCount(ent)
       if (ent.behavior === 'idle') {
         if (ent.energy < 200) {
@@ -287,7 +216,6 @@ function Layout2() {
         ent.actionIndex = 1
         // ent.energy = ent.energy - 1
         const rand = Math.floor(Math.random() * 10)
-        // console.log(rand)
         if (rand === 1) {
           ent.behavior = 'idle'
           ent.actionIndex = 0
@@ -296,8 +224,6 @@ function Layout2() {
           ent.energy = 0
           ent.behavior = 'idle'
         }
-
-
         switch (ent.movingDirection) {
           case 'left': ent.position.x = ent.position.x - ent.speed
 
@@ -311,53 +237,37 @@ function Layout2() {
         }
 
 
-      }
-
-
-
-      //keeps ent from going off screen
-      if (ent.position.x <= 10) {
-        ent.behavior = 'moving'
-        ent.movingDirection = 'right'
-      } if (ent.position.y <= 10) {
-        ent.position.y = 10
-      }
-
-      //check background collisions
-      background && background.map((item, index) => {
-        let xDif = Math.abs(ent.position.x - item.position.x)
-        let yDif = Math.abs(ent.position.y - item.position.y)
-
-        if (xDif < item.xSize / 2 && yDif < item.ySize / 2) {
-          //  console.log('you close dog')
-          if (xDif > yDif) {
-
-            //  console.log(item.position.x, ent.position.x)
-            if (item.position.x < ent.position.x) {
-              ent.position.x = item.position.x + item.xSize / 2
-
-              //       console.log('right')
-            }
-            else if (item.position.x + item.xSize / 2 > ent.position.x) {
-              ent.position.x = item.position.x - item.xSize / 2
-              //      console.log('left')
-            }
-
-          } else {
-            if (item.position.y < ent.position.y) {
-              ent.position.y = item.position.y + item.ySize / 2
-              //     console.log('right')
-            }
-            else if (item.position.y + item.ySize / 2 > ent.position.y) {
-              ent.position.y = item.position.y - item.ySize / 2
-              //     console.log('left')
-            }
-          }
-
-
+        //keeps ent from going off screen
+        if (ent.position.x <= 10) {
+          ent.behavior = 'moving'
+          ent.movingDirection = 'right'
+        } if (ent.position.y <= 10) {
+          ent.position.y = 10
         }
-        // console.log(xDif, yDif)
-      })
+
+      }
+      let col = collisionHandler(ent, background)
+      if (!col) {
+        ent.position = ent.position
+      } else {
+
+        col.map((item, index) => {
+          if (item.xIntersection.xDif < item.yIntersection.yDif) {
+            ent.position.x = item.item.position && item.xIntersection.xSide === 'left'
+              ? item.item.position.x
+              : item.xIntersection.xSide === 'right'
+                ? item.item.position.x + item.item.xSize + ent.xSize
+                : item.item.position.x
+          }
+          else {
+            ent.position.y = item.item.position && item.yIntersection.ySide === 'top'
+              ? item.item.position.y
+              : item.yIntersection.ySide === 'bottom'
+                ? item.item.position.y + item.item.ySize + ent.ySize
+                : item.item.position.y
+          }
+        })
+      }
 
       //check other ent collisions
       count % ent.socialAwareness === 0 && ents.map((item, i) => {
@@ -435,11 +345,11 @@ function Layout2() {
             if (player[closestPlayerIndex].position.x > ent.position.x) {
               ent.position.x = ent.position.x - ent.speed
               ent.movingDirection = 'left'
-              ent.xScale = 1
+              //    ent.xScale = 1
             } else {
               ent.position.x = ent.position.x + ent.speed
               ent.movingDirection = 'right'
-              ent.xScale = -1
+              //    ent.xScale = -1
             }
 
             if (player[closestPlayerIndex].position.y > ent.position.y) {
@@ -492,7 +402,6 @@ function Layout2() {
     toDelete && p.splice(toDelete, 1)
     setEntities(p)
   }
-
   return (
     <div style={{ width: 4000, height: window.innerHeight * (sectionsMade + 1), overflow: 'hidden' }}>
       {!imagesLoaded && <div>Loading</div>}
@@ -511,14 +420,14 @@ function Layout2() {
               let xDif2 = Math.abs(player[1].position.x - item.position.x)
               if ((yDif < window.innerHeight * .6 && xDif < window.innerWidth * .6)
                 || (yDif2 < window.innerHeight * .6 && xDif2 < window.innerWidth * .6)) {
-                return <Rect
+                return <Image
                   onMouseEnter={() => { console.log(item) }}
                   key={`background-${index}`}
                   image={item.images[0][1]}
                   height={item.ySize}
                   width={item.xSize}
                   x={item.position.x}
-                  fill={'green'}
+                  // fill={'green'}
                   y={item.position.y}
                 //     offsetX={item.xSize / 2}
                 // offsetY={item.ySize / 2}
@@ -565,6 +474,10 @@ function Layout2() {
 export default Layout2;
 
 
+
+
+
+
 Object.size = function (obj) {
   var size = 0, key;
   for (key in obj) {
@@ -572,44 +485,9 @@ Object.size = function (obj) {
   }
   return size;
 };
-
-
-
 Number.prototype.clamp = function (min, max) {
   return Math.min(Math.max(this, min), max);
 };
 
 
 
-
-
-
-  // const newEntPosition = (ent, data, multiplier) => {
-  //   let x
-  //   let y
-
-  //   x = Math.abs(data[0].axes[0 + multiplier]) > joySensitivity
-  //     ? data[0].axes[0 + multiplier]
-  //     : 0
-
-  //   x = ent.position.x + x * (ent.speed * (ent.energy / 50))
-
-
-
-  //   y = Math.abs(data[0].axes[1 + multiplier]) > joySensitivity
-  //     ? data[0].axes[1 + multiplier]
-  //     : 0
-
-
-  //   y = ent.position.y + y * (ent.speed * (ent.energy / 50))
-
-
-
-
-
-
-  //   return { x, y }
-  // }
-  // const newEntDirection = (ent, data, multiplier) => {
-  //   return data[0].axes[0 + multiplier] > .4 ? -1 : data[0].axes[0 + multiplier] < -.4 ? 1 : ent.xScale
-  // }

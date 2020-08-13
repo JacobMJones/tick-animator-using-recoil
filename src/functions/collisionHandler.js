@@ -21,17 +21,28 @@ function newCheck(r1, r2) {
 
 }
 
-const collisionHandler = (player, arr) => {
+const collisionHandler = (player, arr, padding) => {
   //console.log(player, arr)
   let ind = []
   let x = player.position.x
   let y = player.position.y
 
   arr.map((item, index) => {
+    let intersecting
 
-    let intersecting = newCheck(
-      { x: item.position.x, y: item.position.y, width: item.xSize, height: item.ySize },
-      { x: x, y: y, width: player.xSize, height: player.ySize })
+    if (padding) {
+
+      intersecting = newCheck(
+
+        { x: item.position.x, y: item.position.y, width: item.xSize + padding, height: item.ySize + padding },
+        { x: x, y: y, width: player.xSize + padding, height: player.ySize + padding })
+    } else {
+      intersecting = newCheck(
+
+        { x: item.position.x, y: item.position.y, width: item.xSize, height: item.ySize },
+        { x: x, y: y, width: player.xSize, height: player.ySize })
+    }
+
 
     // console.log(intersecting)
 

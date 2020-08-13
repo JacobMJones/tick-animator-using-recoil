@@ -14,7 +14,7 @@ const createEntities = (ents, entityTypes, allEnts, sectionsMade) => {
         speed: entityTypes[item].speed + Math.floor(Math.random() * 6),
         fearDistance: entityTypes[item].fearDistance + Math.floor(Math.random() * 60),
         position: {
-          x: Math.floor(Math.random() * 4000),
+          x: Math.floor(Math.random() * 400)+ 400,
           y: Math.floor(Math.random() * window.innerHeight) + (sectionsMade * window.innerHeight)
         },
         socialAwareness: Math.floor(Math.random() * 100) + 3,

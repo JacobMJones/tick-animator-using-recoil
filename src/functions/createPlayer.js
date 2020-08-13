@@ -5,6 +5,7 @@ import loadImages from './loadImages'
 const createPlayer = (entityTypes, playerType, id, fill) => {
 
   return {
+    pID: id,
     canMove: true,
     behavior: 'idle',
     energy: 200,
@@ -12,8 +13,8 @@ const createPlayer = (entityTypes, playerType, id, fill) => {
     images: loadImages(entityTypes[playerType].actions, entityTypes[playerType].path),
     id: `player-${id}`,
     position: {
-      x: 200 * id,
-      y: 100
+      x: 300,
+      y:300
     },
     key: `player-${id}-${id}`,
     farAway: false,
